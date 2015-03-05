@@ -165,6 +165,7 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\NeighborController.cs" />
     <Compile Include="Controllers\PlayerController.cs" />
+    <Compile Include="DAL\FakePlayerRepository.cs" />
     <Compile Include="DAL\IPlayerRepository.cs" />
     <Compile Include="DAL\NeighboreenoContext.cs" />
     <Compile Include="DAL\NeighboreenoInitializer.cs" />

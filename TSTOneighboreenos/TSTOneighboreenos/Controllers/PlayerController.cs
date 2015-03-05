@@ -13,12 +13,26 @@ namespace TSTOneighboreenos.Controllers
 {
     public class PlayerController : Controller
     {
-        private NeighboreenoContext db = new NeighboreenoContext();
+        //private NeighboreenoContext db = new NeighboreenoContext();  // original context
+        private IPlayerRepository repo;
+
+        // Called by MVC Framework
+        public PlayerController()
+        {
+            repo = new PlayerRepository(new NeighboreenoContext());
+        }
+
+        // called by the unit tests
+        public PlayerController(IPlayerRepository fakeRepo)
+        {
+            repo = fakeRepo;
+        }
 
         // GET: Player
         public ActionResult Index()
         {
-            return View(db.Players.ToList());
+            //return View(db.Players.ToList());  // original code
+            return View(repo.GetPlayers());
         }
 
         // GET: Player/Details/5
@@ -28,7 +42,8 @@ namespace TSTOneighboreenos.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Player player = db.Players.Find(id);
+            //Player player = db.Players.Find(id);   // orignal code
+            Player player = repo.GetPlayerByID((int)id);
             if (player == null)
             {
                 return HttpNotFound();
@@ -55,8 +70,10 @@ namespace TSTOneighboreenos.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    db.Players.Add(player);
-                    db.SaveChanges();
+                    /*db.Players.Add(player);  // original code
+                    db.SaveChanges();*/
+                    repo.InsertPlayer(player);
+                    repo.Save();
                     return RedirectToAction("Index");
                 }
             }
@@ -76,7 +93,8 @@ namespace TSTOneighboreenos.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Player player = db.Players.Find(id);
+            //Player player = db.Players.Find(id);   // original code
+            Player player = repo.GetPlayerByID((int)id);
             if (player == null)
             {
                 return HttpNotFound();
@@ -97,15 +115,18 @@ namespace TSTOneighboreenos.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            var playerToUpdate = db.Players.Find(id);
+            //var playerToUpdate = db.Players.Find(id);    // original code
+            var playerToUpdate = repo.GetPlayerByID((int)id);
+
             if(TryUpdateModel(playerToUpdate, "",
                 new string[] { "TSTOhandle", "Level", "NameFirst", "MidInt", "NameLast", "Email"}))
             {
                 try
                 {
-                    db.Entry(playerToUpdate).State = EntityState.Modified;
-                    db.SaveChanges();
-
+                    /*db.Entry(playerToUpdate).State = EntityState.Modified;
+                    db.SaveChanges(); */  // original block of code
+                    repo.UpdatePlayer(playerToUpdate);
+                    repo.Save();
                     return RedirectToAction("Index");
                 }
                 catch (DataException /* dex */)
@@ -117,17 +138,6 @@ namespace TSTOneighboreenos.Controllers
             return View(playerToUpdate);
         }
 
-        /*public ActionResult Edit([Bind(Include = "TSTOhandle,Level,NameFirst,MidInit,NameLast,Email,SpringfieldPath,Active,AddMe")] Player player)
-        {
-            if (ModelState.IsValid)
-            {
-                db.Entry(player).State = EntityState.Modified;
-                db.SaveChanges();
-                return RedirectToAction("Index");
-            }
-            return View(player);
-        } */
-
         // GET: Player/Delete/5
         public ActionResult Delete(int? id)
         {
@@ -135,7 +145,8 @@ namespace TSTOneighboreenos.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Player player = db.Players.Find(id);
+            //Player player = db.Players.Find(id);    // original code
+            Player player = repo.GetPlayerByID((int)id);
             if (player == null)
             {
                 return HttpNotFound();
@@ -148,9 +159,11 @@ namespace TSTOneighboreenos.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            Player player = db.Players.Find(id);
+            /*Player player = db.Players.Find(id);
             db.Players.Remove(player);
-            db.SaveChanges();
+            db.SaveChanges();*/
+            repo.DeletePlayer(id);
+            repo.Save();
             return RedirectToAction("Index");
         }
 
@@ -158,7 +171,8 @@ namespace TSTOneighboreenos.Controllers
         {
             if (disposing)
             {
-                db.Dispose();
+                //db.Dispose();
+                repo.Dispose();
             }
             base.Dispose(disposing);
         }

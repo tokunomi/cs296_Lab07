@@ -7,7 +7,7 @@ using TSTOneighboreenos.Models;
 
 namespace TSTOneighboreenos.DAL
 {
-    interface IPlayerRepository : IDisposable
+    public interface IPlayerRepository : IDisposable
     {
         IEnumerable<Player> GetPlayers();
         Player GetPlayerByID(int playerId);
